@@ -4,6 +4,7 @@ require("dotenv").config();
 app.use(express.json());
 const supabase = require("./config/supabase");
 const admin=require("./routes/admin");
+const student=require("./routes/studentRoutes")
 //supabase checking
 supabase.from('students').select('count').limit(1)
   .then(() => {
@@ -20,6 +21,9 @@ app.get("/hc",(req,res)=>{
 })
 
 app.use("/LMS",admin)
+app.use("/LMS",student)
+
 app.listen(process.env.PORT,()=>{
     console.log(`server started on the ${process.env.PORT} successfully`);
 })
+

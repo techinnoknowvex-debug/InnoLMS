@@ -1,8 +1,8 @@
-module.exports={
-    STUDENTS:'students',
-    COURSE:'courses',
-    ENROLLMENTS:'enrollments',
-    CLASSES:'classes',
-    QUIZZES:'quizzez',
-    QUIZ_ATTEMPS:'quiz_attempts',
-}
+module.exports = {
+    STUDENTS: 'students',
+    COURSES: 'courses',
+    ENROLLMENTS: 'enrollments',
+    CLASSES: 'classes',
+    QUIZZES: 'quizzes',
+    QUIZ_ATTEMPTS: 'quiz_attempts',
+};
