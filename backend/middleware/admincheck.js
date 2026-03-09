@@ -1,8 +1,9 @@
 const jwt=require("jsonwebtoken");
-const admincheck=async (req,res)=>{
+
+const admincheck=async (req,res,next)=>{
     const authHeader = req.headers.authorization;
     if(!authHeader){
-        return res.status(401).json({message:"No valid token from frontend"})
+        return res.status(401).json({message:"Your not authorized"})
     }
     const token=authHeader.split(" ")[1];
      if (!token) {
