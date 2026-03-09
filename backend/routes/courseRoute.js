@@ -13,7 +13,6 @@ router.post("/addCourse", admincheck, async (req, res) => {
             return res.status(400).json({ message: "Title is required to add course" });
         }
 
-
         const { data: course, error: checkError } = await supabase
             .from(COURSES)
             .select("id")

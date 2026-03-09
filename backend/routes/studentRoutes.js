@@ -45,7 +45,7 @@ router.post("/student", async (req, res) => {
 
 
 // Get courses for a specific student
-router.get("/student/:id/courses", admincheck, async (req, res) => {
+router.get("/student/:id/courses", async (req, res) => {
     const { id } = req.params;
 
     try {
