@@ -1,10 +1,10 @@
 const express = require('express');
 const supabase = require('../config/supabase');
 const { ENROLLMENTS, STUDENTS, COURSES } = require("../models/tables");
-
+const admincheck=require("../middleware/admincheck")
 const router = express.Router();
 
-router.post("/enroll", async (req, res) => {
+router.post("/enroll", admincheck,async (req, res) => {
     const { student_id, course_id } = req.body;
     try {
         if (!student_id || !course_id) {

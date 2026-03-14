@@ -1,14 +1,24 @@
 const express = require('express');
+const cors=require("cors")
 const app = express();
 require("dotenv").config();
 app.use(express.json());
+app.use(cors())
 const supabase = require("./config/supabase");
 const admin=require("./routes/admin");
 const student=require("./routes/studentRoutes")
 const course=require("./routes/courseRoute");
+
 const enroll=require("./routes/enrollRoute");
 const classes=require("./routes/classesRoute");
 const quize=require("./routes/quizeRoute");
+
+
+const enroll=require("./routes/enrollRoute");
+const classes=require("./routes/classesRoute");
+const quize=require("./routes/quizeRoute");
+const stats=require("./routes/statsRoute");
+
 
 //supabase checking
 supabase.from('students').select('count').limit(1)
@@ -28,9 +38,16 @@ app.get("/hc",(req,res)=>{
 app.use("/LMS",admin)
 app.use("/LMS",student)
 app.use("/LMS",course)
+
 app.use("/LMS",enroll)
 app.use("/LMS",classes)
 app.use("/LMS",quize)
+
+app.use("/LMS",enroll)
+app.use("/LMS",classes)
+app.use("/LMS",quize)
+app.use("/LMS",stats)
+
 
 app.listen(process.env.PORT,()=>{
     console.log(`server started on the ${process.env.PORT} successfully`);

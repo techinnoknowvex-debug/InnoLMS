@@ -15,7 +15,7 @@ router.post("/student", async (req, res) => {
             .from(STUDENTS)
             .select("*")
             .eq("unicode", unicode)
-            .single();
+            .maybeSingle();;
         if (student_error) {
             return res.status(500).json({ message: `Error in student data: ${student_error.message}` });
         }
