@@ -14,9 +14,8 @@ const classes=require("./routes/classesRoute");
 const quize=require("./routes/quizeRoute");
 
 
-const enroll=require("./routes/enrollRoute");
-const classes=require("./routes/classesRoute");
-const quize=require("./routes/quizeRoute");
+
+
 const stats=require("./routes/statsRoute");
 
 
