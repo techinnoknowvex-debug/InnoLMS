@@ -1,19 +1,46 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './Screens/login';
+import DashboardStack from './Screens/DashboardStack';
+
+const Stack = createNativeStackNavigator();
+
+const COLORS = {
+  salmon: '#FF7F50',
+  black: '#000000',
+  grey: '#808080',
+  lightGrey: '#f5f5f5',
+  white: '#ffffff',
+};
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  return isLoggedIn ? (
-    // Replace with your home/dashboard screen
-    null
-  ) : (
-    <>
-      <LoginScreen />
-      <StatusBar style="auto" />
-    </>
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: COLORS.salmon,
+          },
+          headerTintColor: COLORS.white,
+          headerTitleStyle: {
+            fontWeight: '700',
+          },
+        }}
+      >
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="DashboardStack"
+          component={DashboardStack}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
+      <StatusBar style="light" />
+    </NavigationContainer>
   );
 }
 

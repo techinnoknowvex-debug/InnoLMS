@@ -1,9 +1,27 @@
 import React, { useState } from 'react';
-import {View,Text,StyleSheet,TextInput,TouchableOpacity,ActivityIndicator,Alert,KeyboardAvoidingView,ScrollView} from 'react-native';
+import {View,Text,StyleSheet,Alert,KeyboardAvoidingView,ScrollView,Image,Dimensions} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import LoginForm from '../componentes/loginForm';
+
+const { width, height } = Dimensions.get('window');
+
+// Premium Brand Colors
+const COLORS = {
+  orange: '#FF7A45',
+  darkOrange: '#E8642D',
+  black: '#000000',
+  darkGrey: '#4A4A4A',
+  grey: '#8B8B8B',
+  lightGrey: '#F5F5F5',
+  ultraLight: '#FAFAFA',
+  white: '#FFFFFF',
+  softRed: '#E8626F',
+  subtle: 'rgba(0, 0, 0, 0.05)',
+};
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [unicode, setUnicode] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -16,10 +34,10 @@ const LoginScreen = ({ navigation }) => {
       newErrors.email = 'Please enter a valid email';
     }
 
-    if (!password.trim()) {
-      newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    if (!unicode.trim()) {
+      newErrors.unicode = 'Unicode is required';
+    } else if (unicode.length < 6) {
+      newErrors.unicode = 'Unicode must be at least 6 characters';
     }
 
     setErrors(newErrors);
@@ -37,24 +55,23 @@ const LoginScreen = ({ navigation }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email.trim(),
-          password: password,
+          email:email.trim(),
+          unicode:unicode,
         }),
       });
-
       const data = await response.json();
-
       if (!response.ok) {
         Alert.alert('Login Failed', data.message || 'Invalid credentials');
       } else {
-        // Store authentication token if provided
-        if (data.token) {
-          // You can store token here using AsyncStorage or similar
-          console.log('Login successful', data);
-        }
-        Alert.alert('Success', 'Login successful!');
-        // Navigate to home or dashboard screen
-        // navigation.replace('Home');
+        Alert.alert('Success', 'Login successful!',
+          [
+      {
+        text: 'OK',
+        onPress: () => navigation.navigate('DashboardStack'),
+      },
+    ]
+        );
+          
       }
     } catch (error) {
       Alert.alert('Error', 'An error occurred. Please try again.');
@@ -64,173 +81,118 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
+  const handleGuestLogin = () => {
+    navigation.navigate('DashboardStack', { 
+      screen: 'Explore',
+      isGuest: true 
+    });
+  };
+
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.title}>InnoKnowVex LMS</Text>
-          <Text style={styles.subtitle}>Smart Learning Platform</Text>
-        </View>
-
-        <View style={styles.formContainer}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email Address</Text>
-            <TextInput
-              style={[styles.input, errors.email && styles.inputError]}
-              placeholder="Enter your email"
-              placeholderTextColor="#999"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={setEmail}
-              editable={!loading}
-            />
-            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+    <LinearGradient
+      colors={['#F5E6D3', '#FFFFFF', '#FAFAFA']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.backgroundGradient}
+    >
+      <KeyboardAvoidingView style={styles.container} behavior="padding">
+        <ScrollView 
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+        >
+          {/* Decorative Abstract Shapes */}
+          <View style={styles.decorativeShape1} />
+          <View style={styles.decorativeShape2} />
+          
+          {/* Header Section */}
+          <View style={styles.headerContainer}>
+            <View style={styles.logoWrapper}>
+              <Image
+                source={require('../assets/logo.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.tagline}>Transforming Aspirations into Achievements</Text>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={[styles.input, errors.password && styles.inputError]}
-              placeholder="Enter your password"
-              placeholderTextColor="#999"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-              editable={!loading}
-            />
-            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-          </View>
-
-          <TouchableOpacity
-            style={[styles.loginButton, loading && styles.buttonDisabled]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" size="small" />
-            ) : (
-              <Text style={styles.loginButtonText}>Login</Text>
-            )}
-          </TouchableOpacity>
-
-          <View style={styles.footerContainer}>
-            <Text style={styles.footerText}>Don't have an account? </Text>
-            <TouchableOpacity>
-              <Text style={styles.linkText}>Sign Up</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity>
-            <Text style={styles.forgotPassword}>Forgot Password?</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          {/* Premium Glassmorphism Login Card */}
+          <LoginForm
+            email={email}
+            unicode={unicode}
+            errors={errors}
+            loading={loading}
+            onEmailChange={setEmail}
+            onUnicodeChange={setUnicode}
+            onLoginPress={handleLogin}
+            onGuestPress={handleGuestLogin}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 };
 
 
 const styles = StyleSheet.create({
+  backgroundGradient: {
+    flex: 1,
+    width: width,
+    height: height,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 30,
+    paddingHorizontal: 18,
+    paddingVertical: 40,
+    position: 'relative',
   },
+  
+  /* Decorative Abstract Shapes */
+  decorativeShape1: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: `rgba(255, 122, 69, 0.08)`,
+    top: -40,
+    right: -60,
+  },
+  decorativeShape2: {
+    position: 'absolute',
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: `rgba(255, 122, 69, 0.06)`,
+    bottom: 100,
+    left: -50,
+  },
+
   headerContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 32,
+    marginTop: 10,
+    zIndex: 10,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-  },
-  formContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  inputGroup: {
+  logoWrapper: {
     marginBottom: 20,
   },
-  label: {
+  logo: {
+    width: 180,
+    height: 85,
+  },
+  tagline: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: '#333',
-    backgroundColor: '#fafafa',
-  },
-  inputError: {
-    borderColor: '#e74c3c',
-    backgroundColor: '#fadbd8',
-  },
-  errorText: {
-    color: '#e74c3c',
-    fontSize: 12,
-    marginTop: 5,
-  },
-  loginButton: {
-    backgroundColor: '#3498db',
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonDisabled: {
-    backgroundColor: '#95a5a6',
-    opacity: 0.7,
-  },
-  loginButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  footerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  footerText: {
-    color: '#666',
-    fontSize: 14,
-  },
-  linkText: {
-    color: '#3498db',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  forgotPassword: {
-    textAlign: 'center',
-    color: '#3498db',
-    fontSize: 13,
-    marginTop: 15,
     fontWeight: '500',
+    color: COLORS.grey,
+    fontStyle: 'italic',
+    letterSpacing: 0.3,
   },
 });
 
 export default LoginScreen;
+  
