@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './Screens/login';
 import DashboardStack from './Screens/DashboardStack';
+import { useState } from 'react';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,6 +16,7 @@ const COLORS = {
 };
 
 export default function App() {
+   const [logedin,setLogedin]=useState(false)
   return (
     <NavigationContainer>
       <Stack.Navigator

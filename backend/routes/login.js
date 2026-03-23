@@ -12,7 +12,7 @@ router.post("/login", async (req,res)=>{
         }
         const {data:student,error:studenterror}= await supabase
         .from(STUDENTS)
-        .select("email,unicode")
+        .select("id,email,unicode")
         .eq("email",email)
         .eq("unicode",unicode)
         .maybeSingle();
@@ -22,7 +22,7 @@ router.post("/login", async (req,res)=>{
         if(studenterror){
             return res.status(400).json({message:studenterror.message});
         }
-        return res.status(200).json({message:"Login success"})
+        return res.status(200).json({message:"Login success",id:student.id})
 
     }catch(err){
           return res.status(500).json({message:err.message})

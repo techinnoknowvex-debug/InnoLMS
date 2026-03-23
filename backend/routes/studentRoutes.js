@@ -43,6 +43,29 @@ router.post("/student", async (req, res) => {
     }
 });
 
+router.get("/student/:id",async (req,res)=>{
+       const {id}=req.params;
+     try{
+        const {data: student, error: studentError} = await supabase
+        .from(STUDENTS)
+        .select("*")
+        .eq("id",id)
+        .maybeSingle();
+        
+        if(studentError) {
+            return res.status(400).json({message: studentError.message});
+        }
+        
+        if(!student) {
+            return res.status(404).json({message: "Student not found"});
+        }
+        
+        return res.status(200).json(student);
+
+     }catch(err){
+        return res.status(500).json({message:err.message})
+     }
+})
 
 // Get courses for a specific student
 router.get("/student/:id/courses", async (req, res) => {
@@ -76,7 +99,7 @@ router.get("/student/:id/courses", async (req, res) => {
 });
 
 // Get all students with their enrolled courses
-router.get("/students/courses", admincheck, async (req, res) => {
+router.get("/students/courses",async (req, res) => {
     try {
         const { data: students, error: studentsError } = await supabase
             .from(STUDENTS)

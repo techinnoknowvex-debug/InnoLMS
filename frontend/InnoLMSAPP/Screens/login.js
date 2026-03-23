@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {View,Text,StyleSheet,Alert,KeyboardAvoidingView,ScrollView,Image,Dimensions} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { LinearGradient } from 'expo-linear-gradient';
 import LoginForm from '../componentes/loginForm';
 
@@ -63,6 +64,7 @@ const LoginScreen = ({ navigation }) => {
       if (!response.ok) {
         Alert.alert('Login Failed', data.message || 'Invalid credentials');
       } else {
+          await AsyncStorage.setItem('id', data.id.toString())
         Alert.alert('Success', 'Login successful!',
           [
       {
