@@ -6,6 +6,7 @@ import { notifyError, notifySuccess } from '../utils/toast';
 const Courses = () => {
   const [courses, setCourses] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [courseId, setCourseId] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [totalWeeks, setTotalWeeks] = useState('');
@@ -43,6 +44,7 @@ const Courses = () => {
           Authorization: 'Bearer ' + token,
         },
         body: JSON.stringify({
+          course_id: courseId,
           title,
           description,
           total_weeks: totalWeeks,
@@ -56,6 +58,7 @@ const Courses = () => {
       } else {
         notifySuccess(data.message);
         setShowForm(false);
+        setCourseId('');
         setTitle('');
         setDescription('');
         setTotalWeeks('');
@@ -95,11 +98,13 @@ const Courses = () => {
               <h3>Add New Course</h3>
             </div>
             <AddCourseForm
+              courseId={courseId}
               title={title}
               description={description}
               totalWeeks={totalWeeks}
               passPercentage={passPercentage}
               attendance={attendance}
+              setCourseId={setCourseId}
               setTitle={setTitle}
               setDescription={setDescription}
               setTotalWeeks={setTotalWeeks}

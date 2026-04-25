@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - INNOKNOWVEX LMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .message {
+            font-size: 16px;
+            color: #666;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        
+        .success {
+            color: #27ae60;
+        }
+        
+        .error {
+            color: #e74c3c;
+        }
+        
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        
+        .button:hover {
+            transform: scale(1.05);
+        }
+        
+        .info {
+            font-size: 14px;
+            color: #999;
+            margin-top: 20px;
+        }
+        
+        .icon {
+            font-size: 60px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🎓</div>
+        <h1>INNOKNOWVEX LMS</h1>
+        <h2 style="color: #667eea; font-size: 20px; margin-bottom: 30px;">Email Verification</h2>
+        
+        <div id="loading">
+            <div class="spinner"></div>
+            <p class="message">Verifying your email...</p>
+        </div>
+        
+        <div id="success" style="display: none;">
+            <div class="icon">✅</div>
+            <p class="message success"><strong>Email Verified Successfully!</strong></p>
+            <p class="message">Your email has been verified. Please follow these steps:</p>
+            <ol style="text-align: left; display: inline-block; margin: 20px 0;">
+                <li>Close this window or browser tab</li>
+                <li>Go back to the INNOKNOWVEX LMS app</li>
+                <li>Click the <strong>Login</strong> button to complete your login</li>
+            </ol>
+            <p class="info" style="margin-top: 30px; font-style: italic;">This window will not redirect you automatically.</p>
+        </div>
+        
+        <div id="error" style="display: none;">
+            <div class="icon">❌</div>
+            <p class="message error" id="error-message"><strong>Verification Failed</strong></p>
+            <button class="button" onclick="location.reload()">
+                Try Again
+            </button>
+        </div>
+        
+        <p class="info">© 2026 INNOKNOWVEX LMS. All rights reserved.</p>
+    </div>
+
+    <script>
+        async function verifyEmail() {
+            try {
+                // Get token and studentId from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const token = urlParams.get('token');
+                const studentId = urlParams.get('studentId');
+
+                if (!token || !studentId) {
+                    showError('Missing verification parameters in link');
+                    return;
+                }
+
+          
+
+                // Call backend verification endpoint
+                const response = await fetch('http://10.232.72.151:5000/LMS/verifyEmailToken', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        token: token,
+                        studentId: parseInt(studentId)
+                    })
+                });
+
+                const data = await response.json();
+                console.log('Response:', data);
+
+                if (response.ok && data.success) {
+                    showSuccess();
+                } else {
+                    showError(data.message || 'Verification failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                showError('Connection error. Please check your internet and try again.');
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('success').style.display = 'block';
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('success').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error-message').innerHTML = '<strong>' + message + '</strong>';
+        }
+
+        // Start verification on page load
+        window.addEventListener('DOMContentLoaded', verifyEmail);
+    </script>
+</body>
+</html>

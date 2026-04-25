@@ -4,6 +4,34 @@ const { ENROLLMENTS, STUDENTS, COURSES } = require("../models/tables");
 const admincheck=require("../middleware/admincheck")
 const router = express.Router();
 
+// Get enrolled courses for a student
+router.get("/student_enrollments/:student_id", async (req, res) => {
+    const { student_id } = req.params;
+    try {
+        if (!student_id) {
+            return res.status(400).json({ message: "student_id is required" });
+        }
+
+        const { data: enrollments, error: enrollError } = await supabase
+            .from(ENROLLMENTS)
+            .select("course_id")
+            .eq("student_id", student_id);
+
+        if (enrollError) {
+            return res.status(400).json({ message: enrollError.message });
+        }
+
+        const enrolledCourseIds = enrollments.map(e => e.course_id);
+        return res.status(200).json({ 
+            message: "Enrolled courses fetched",
+            enrolled_course_ids: enrolledCourseIds 
+        });
+
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+});
+
 router.post("/enroll", admincheck,async (req, res) => {
     const { student_id, course_id } = req.body;
     try {
@@ -64,3 +92,5 @@ router.post("/enroll", admincheck,async (req, res) => {
 });
 
 module.exports = router;
+
+       

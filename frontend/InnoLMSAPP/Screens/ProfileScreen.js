@@ -3,27 +3,41 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'rea
 import { Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as ImagePicker from 'expo-image-picker';
+import { useAuth } from '../context/AuthContext';
 import ProfileForm from '../componentes/ProfileForm';
+import { Config } from '../config';
+
+const COLORS = {
+  salmon: '#FFA366',
+  black: '#000000',
+  grey: '#808080',
+  lightGrey: '#f5f5f5',
+  white: '#ffffff',
+};
+const BASE_URL = Config.API_BASE_URL;
 
 const ProfileScreen = ({ navigation }) => {
   const [id, setId] = useState(null);
   const [data, setData] = useState({});
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const { signOut } = useAuth();
 
   useEffect(() => {
     async function getId() {
-      const storedId = await AsyncStorage.getItem("id");
+      const storedId = await AsyncStorage.getItem("userToken");
       setId(storedId);
     }
     getId();
   }, []);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) {
+      return;
+    }
     async function fetchdata() {
       try {
-        const res = await fetch(`http://192.168.9.121:5000/LMS/student/${id}`, {
+        const res = await fetch(`${BASE_URL}/LMS/student/${id}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" }
         });
@@ -39,8 +53,6 @@ const ProfileScreen = ({ navigation }) => {
     }
     fetchdata();
   }, [id]);
-
- 
 
   const handleCameraPress = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -64,25 +76,24 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const handleLogout = async () => {
-    Alert.alert("Logout", "Are you sure?", [
-      { text: "Cancel", onPress: () => {} },
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", onPress: () => {}, style: "cancel" },
       {
         text: "Logout",
         onPress: async () => {
-          await AsyncStorage.removeItem("id");
-          navigation.navigate("Login");
-        }
+          await signOut();
+        },
+        style: "destructive"
       }
     ]);
   };
 
-
   return (
     <>
-      <ScrollView style={styles.container}>
+      <ScrollView style={[styles.container, { backgroundColor: COLORS.lightGrey }]}>
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
+        <View style={[styles.header, { backgroundColor: COLORS.salmon }]}>
+          <Text style={styles.headerTitle}>My Profile</Text>
         </View>
 
         {/* Profile Card */}
@@ -90,32 +101,33 @@ const ProfileScreen = ({ navigation }) => {
           {/* Profile Details Section */}
           <View style={styles.detailsSection}>
             <View style={styles.imageSection}>
-            <View style={styles.profileImageWrapper}>
-              <Image
-                source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
-                style={styles.profileImage}
-              />
-              <TouchableOpacity 
-                style={styles.cameraButton}
-                onPress={handleCameraPress}
-              >
-                <Text style={styles.cameraIcon}>📷</Text>
-              </TouchableOpacity>
+              <View style={styles.profileImageWrapper}>
+                <Image
+                  source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
+                  style={styles.profileImage}
+                />
+                <TouchableOpacity 
+                  style={[styles.cameraButton, { backgroundColor: COLORS.salmon }]}
+                  onPress={handleCameraPress}
+                >
+                  <Text style={styles.cameraIcon}>📷</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-            <Text style={styles.name}>{data.name || ""}</Text>
+            <Text style={[styles.name, { color: COLORS.black }]}>{data.name || "User"}</Text>
             
             <View style={styles.detailsContainer}>
               <View style={styles.detailItem}>
-                <Text style={styles.detailValue}>{data.email || "N/A"}</Text>
+                <Text style={[styles.detailLabel, { color: COLORS.grey }]}>EMAIL</Text>
+                <Text style={[styles.detailValue, { color: COLORS.black }]}>{data.email || "N/A"}</Text>
               </View>
 
               <View style={styles.detailItem}>
-                <Text style={styles.detailValue}>{data.phone || "N/A"}</Text>
+                <Text style={[styles.detailLabel, { color: COLORS.grey }]}>PHONE</Text>
+                <Text style={[styles.detailValue, { color: COLORS.black }]}>{data.phone || "N/A"}</Text>
               </View>
             </View>
           </View>
-          
         </View>
 
         {/* Menu Items */}
@@ -124,18 +136,18 @@ const ProfileScreen = ({ navigation }) => {
             style={styles.menuItem}
             onPress={() => setShowProfileModal(true)}
           >
-            <Text style={styles.menuLabel}>Profile Information</Text>
-            <Text style={styles.menuArrow}>›</Text>
+            <Text style={[styles.menuLabel, { color: COLORS.black }]}>Edit Profile</Text>
+            <Text style={[styles.menuArrow, { color: COLORS.grey }]}>›</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuLabel}>Help</Text>
-            <Text style={styles.menuArrow}>›</Text>
+            <Text style={[styles.menuLabel, { color: COLORS.black }]}>My Courses</Text>
+            <Text style={[styles.menuArrow, { color: COLORS.grey }]}>›</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuLabel}>Refer & Earn</Text>
-            <Text style={styles.menuArrow}>›</Text>
+            <Text style={[styles.menuLabel, { color: COLORS.black }]}>Settings</Text>
+            <Text style={[styles.menuArrow, { color: COLORS.grey }]}>›</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -143,7 +155,7 @@ const ProfileScreen = ({ navigation }) => {
             onPress={handleLogout}
           >
             <Text style={styles.menuLabelLogout}>Log Out</Text>
-            <Text style={styles.menuArrow}>›</Text>
+            <Text style={[styles.menuArrow, { color: '#e74c3c' }]}>›</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -161,24 +173,19 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    paddingHorizontal: 0,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingVertical: 20,
     paddingHorizontal: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    paddingTop: 15,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 28,
+    fontWeight: '700',
+    color: COLORS.white,
   },
   profileCard: {
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     marginVertical: 20,
     marginHorizontal: 15,
@@ -197,8 +204,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
+    fontWeight: '700',
     marginBottom: 15,
     textAlign: 'center',
   },
@@ -209,24 +215,25 @@ const styles = StyleSheet.create({
   detailItem: {
     alignItems: 'center',
     marginBottom: 8,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGrey,
   },
   detailLabel: {
-    fontSize: 12,
-    color: '#999',
+    fontSize: 11,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   detailValue: {
     fontSize: 14,
-    color: '#333',
     marginTop: 3,
     fontWeight: '500',
   },
   imageSection: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
+    marginBottom: 20,
   },
   profileImageWrapper: {
     position: 'relative',
@@ -237,31 +244,33 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
+    borderWidth: 3,
+    borderColor: COLORS.salmon,
   },
   cameraButton: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#007bff',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#fff',
+    borderWidth: 3,
+    borderColor: COLORS.white,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.25,
     shadowRadius: 3,
-    elevation: 4,
+    elevation: 5,
   },
   cameraIcon: {
-    fontSize: 16,
+    fontSize: 18,
   },
   menuSection: {
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.white,
     marginTop: 10,
+    marginBottom: 20,
   },
   menuItem: {
     flexDirection: 'row',
@@ -269,27 +278,25 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: COLORS.lightGrey,
   },
   menuLabel: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
     fontWeight: '500',
   },
   menuLabelLogout: {
     flex: 1,
     fontSize: 16,
-    color: '#ff6b6b',
-    fontWeight: '500',
+    color: '#e74c3c',
+    fontWeight: '600',
   },
   menuArrow: {
-    fontSize: 16,
-    color: '#999',
+    fontSize: 18,
   },
   logoutMenuItem: {
-    marginBottom: 20,
+    marginBottom: 0,
   },
 });
 
-export default ProfileScreen   
+export default ProfileScreen;

@@ -52,7 +52,8 @@ const Enrollment = () => {
     try {
       const res = await fetch('http://localhost:5000/LMS/enroll', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {  'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token, },
         body: JSON.stringify({ student_id: studentId, course_id: courseId }),
       });
       const data = await res.json();

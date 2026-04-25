@@ -6,24 +6,44 @@ const admincheck = require("../middleware/admincheck");
 const router=express.Router();
 
 router.post("/addCourse", admincheck, async (req, res) => {
-    const { title, description, total_weeks, pass_percentage, attendance_required } = req.body;
+    const { course_id, title, description, total_weeks, pass_percentage, attendance_required } = req.body;
 
     try {
         if (!title) {
             return res.status(400).json({ message: "Title is required to add course" });
         }
 
-        const { data: course, error: checkError } = await supabase
+        if (!course_id) {
+            return res.status(400).json({ message: "Course ID is required to add course" });
+        }
+
+        // Check if course_id already exists
+        const { data: existingCourse, error: checkError } = await supabase
             .from(COURSES)
             .select("id")
-            .eq("title", title)
+            .eq("course_id", course_id)
             .maybeSingle();
 
         if (checkError) {
             return res.status(500).json({ message: checkError.message });
         }
 
-        if (course) {
+        if (existingCourse) {
+            return res.status(409).json({ message: "Course with this Course ID already exists" });
+        }
+
+        // Check if title already exists
+        const { data: titleExists, error: titleCheckError } = await supabase
+            .from(COURSES)
+            .select("id")
+            .eq("title", title)
+            .maybeSingle();
+
+        if (titleCheckError) {
+            return res.status(500).json({ message: titleCheckError.message });
+        }
+
+        if (titleExists) {
             return res.status(409).json({ message: "Course already exists with this title" });
         }
 
@@ -31,6 +51,7 @@ router.post("/addCourse", admincheck, async (req, res) => {
             .from(COURSES)
             .insert([
                 {
+                    course_id,
                     title,
                     description,
                     total_weeks,
@@ -44,7 +65,7 @@ router.post("/addCourse", admincheck, async (req, res) => {
         }
 
         return res.status(201).json({
-            message: `Course ${title} added successfully`
+            message: `Course ${title} added successfully with Course ID: ${course_id}`
         });
 
     } catch (err) {

@@ -1,11 +1,13 @@
 import React from 'react';
 
 const AddCourseForm = ({
+  courseId,
   title,
   description,
   totalWeeks,
   passPercentage,
   attendance,
+  setCourseId,
   setTitle,
   setDescription,
   setTotalWeeks,
@@ -17,6 +19,16 @@ const AddCourseForm = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="form-row">
         <div className="form-group">
+          <label>🔑 Course ID (Students will enter this to verify)</label>
+          <input
+            type="text"
+            value={courseId}
+            onChange={(e) => setCourseId(e.target.value)}
+            required
+            placeholder="Enter unique course ID (e.g., CS101, PYTHON-2024)"
+          />
+        </div>
+        <div className="form-group">
           <label>📘 Course Title</label>
           <input
             type="text"
@@ -26,6 +38,9 @@ const AddCourseForm = ({
             placeholder="Enter course title"
           />
         </div>
+      </div>
+
+      <div className="form-row">
         <div className="form-group">
           <label>✏️ Description</label>
           <input

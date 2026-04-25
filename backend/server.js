@@ -3,7 +3,8 @@ const cors=require("cors")
 const app = express();
 require("dotenv").config();
 app.use(express.json());
-app.use(cors())
+app.use(cors());
+app.use(express.static('public'));
 const supabase = require("./config/supabase");
 const admin=require("./routes/admin");
 const student=require("./routes/studentRoutes")
@@ -13,6 +14,11 @@ const classes=require("./routes/classesRoute");
 const quize=require("./routes/quizeRoute");
 const stats=require("./routes/statsRoute");
 const login=require("./routes/login")
+const st_enroll=require("./routes/student_enroll")
+const otp=require("./routes/otp")
+const devices=require("./routes/devices")
+const courseVerification=require("./routes/courseVerification")
+const emailVerification=require("./routes/emailVerification")
 
 //supabase checking
 supabase.from('students').select('count').limit(1)
@@ -40,6 +46,11 @@ app.use("/LMS",classes)
 app.use("/LMS",quize)
 app.use("/LMS",stats)
 app.use("/LMS",login)
+app.use("/LMS",st_enroll)
+app.use("/LMS",otp)
+app.use("/LMS",devices)
+app.use("/LMS",courseVerification)
+app.use("/LMS",emailVerification)
 
 
 app.listen(process.env.PORT,()=>{
