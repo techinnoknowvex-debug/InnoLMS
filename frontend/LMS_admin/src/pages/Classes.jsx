@@ -5,6 +5,7 @@ import { notifyError, notifySuccess } from '../utils/toast';
 const Classes = () => {
   const [courses, setCourses] = useState([]);
   const [courseId, setCourseId] = useState('');
+  const [courseBatch, setCourseBatch] = useState('');
   const [weekNumber, setWeekNumber] = useState('');
   const [classNumber, setClassNumber] = useState('');
   const [title, setTitle] = useState('');
@@ -34,7 +35,7 @@ const Classes = () => {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    if (!courseId || !weekNumber || !classNumber || !title || (!videoFile && !videoUrl)) {
+    if (!courseId || !courseBatch || !weekNumber || !classNumber || !title || (!videoFile && !videoUrl)) {
       notifyError('Please fill out all fields (upload a video file or provide a video URL)');
       return;
     }
@@ -45,6 +46,7 @@ const Classes = () => {
         const formData = new FormData();
         formData.append('video', videoFile);
         formData.append('course_id', courseId);
+        formData.append('course_batch', courseBatch);
         formData.append('week_number', weekNumber);
         formData.append('class_number', classNumber);
         formData.append('title', title);
@@ -88,6 +90,7 @@ const Classes = () => {
           Authorization: 'Bearer ' + token,
         },
         body: JSON.stringify({
+          course_batch: courseBatch,
           course_id: courseId,
           week_number: weekNumber,
           class_number: classNumber,
@@ -128,12 +131,14 @@ const Classes = () => {
         </div>
         <ClassForm
           courses={courses}
-          courseId={courseId}
+          courseBatch={courseBatch}
           weekNumber={weekNumber}
           classNumber={classNumber}
           title={title}
           videoFile={videoFile}
           videoUrl={videoUrl}
+          setCourseId={setCourseId}
+          setCourseBatch={setCourseBatch}
           setCourseId={setCourseId}
           setWeekNumber={setWeekNumber}
           setClassNumber={setClassNumber}

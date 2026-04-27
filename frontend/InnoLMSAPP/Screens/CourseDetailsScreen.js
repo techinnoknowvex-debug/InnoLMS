@@ -13,7 +13,7 @@ import { Config } from '../config';
 const BASE_URL = Config.API_BASE_URL;
 
 const CourseDetailsScreen = ({ route, navigation }) => {
-  const { courseId, courseTitle } = route.params || {};
+  const { courseId, courseTitle, courseBatch } = route.params || {};
   const [course, setCourse] = useState(null);
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +43,7 @@ const CourseDetailsScreen = ({ route, navigation }) => {
         throw new Error('Course not found');
       }
 
-      const classesRes = await fetch(`${BASE_URL}/LMS/classes/${selectedCourse.id}`, {
+      const classesRes = await fetch(`${BASE_URL}/LMS/classes/${selectedCourse.id}?course_batch=${encodeURIComponent(courseBatch)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });

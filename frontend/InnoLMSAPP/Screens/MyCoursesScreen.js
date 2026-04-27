@@ -129,7 +129,8 @@ const MyCoursesScreen = ({ navigation }) => {
     if (enrollment?.is_verified) {
       navigation.navigate('CourseDetails', {
         courseId: course.id,
-        courseTitle: course.title,
+        courseBatch: enrollment.course_batch,
+        courseBatch: enrollment.course_batch,
       });
       return;
     }
@@ -150,7 +151,8 @@ const MyCoursesScreen = ({ navigation }) => {
 
     navigation.navigate('CourseDetails', {
       courseId: selectedCourse?.id,
-      courseTitle: selectedCourse?.title,
+      courseBatch: enrollment.course_batch,
+      courseBatch: enrollment.course_batch,
     });
   };
 

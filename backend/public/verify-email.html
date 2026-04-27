@@ -152,7 +152,7 @@
           
 
                 // Call backend verification endpoint
-                const response = await fetch('http://10.232.72.151:5000/LMS/verifyEmailToken', {
+                const response = await fetch(`${window.location.origin}/LMS/verifyEmailToken`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

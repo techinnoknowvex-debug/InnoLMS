@@ -164,7 +164,7 @@ router.post("/sendEmailVerification", async (req, res) => {
     }
 
   
-    const verificationLink = `http://10.232.72.151:5000/verify-email.html?token=${verificationToken}&studentId=${studentId}`;
+    const verificationLink = `${process.env.BASE_URL}/verify-email.html?token=${verificationToken}&studentId=${studentId}`;
     
     try {
       const emailResult = await sendEmailViaBrevo(student.email, student.name, verificationLink);

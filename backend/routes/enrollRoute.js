@@ -14,7 +14,7 @@ router.get("/student_enrollments/:student_id", async (req, res) => {
 
         const { data: enrollments, error: enrollError } = await supabase
             .from(ENROLLMENTS)
-            .select("id, course_id, is_verified, active_device_id, verified_at")
+            .select("id, course_id, is_verified, active_device_id, verified_at, course_batch")
             .eq("student_id", student_id);
 
         if (enrollError) {
@@ -34,10 +34,10 @@ router.get("/student_enrollments/:student_id", async (req, res) => {
 });
 
 router.post("/enroll", admincheck,async (req, res) => {
-    const { student_id, course_id } = req.body;
+    const { student_id, course_id, course_batch } = req.body;
     try {
-        if (!student_id || !course_id) {
-            return res.status(400).json({ message: "student_id and course_id are required" });
+        if (!student_id || !course_id || !course_batch) {
+            return res.status(400).json({ message: "student_id, course_id, and course_batch are required" });
         }
         const { data: student, error: studentError } = await supabase
             .from(STUDENTS)
@@ -64,6 +64,7 @@ router.post("/enroll", admincheck,async (req, res) => {
             .select("*")
             .eq("student_id", student_id)
             .eq("course_id", course_id)
+            .eq("course_batch", course_batch)
             .single();
 
         if (existingEnrollment) {
@@ -74,6 +75,7 @@ router.post("/enroll", admincheck,async (req, res) => {
             .from(ENROLLMENTS)
             .insert({
                 student_id,
+                course_batch,
                 course_id,
                 enrollment_date: new Date().toISOString()
             });

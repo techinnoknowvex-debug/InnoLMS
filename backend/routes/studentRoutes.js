@@ -9,20 +9,31 @@ router.post("/student", async (req, res) => {
     const { name, email, phone, unicode } = req.body;
     try {
         if (!name || !email || !phone || !unicode) {
-            return res.status(401).json({ message: "Please provide required details" });
+            return res.status(400).json({ message: "Please provide required details" });
         }
-        const { data: student, error: student_error } = await supabase
-            .from(STUDENTS)
-            .select("*")
-            .eq("unicode", unicode)
-            .maybeSingle();;
-        if (student_error) {
-            return res.status(500).json({ message: `Error in student data: ${student_error.message}` });
+
+        const [{ data: existingByUnicode, error: unicodeError }, { data: existingByEmail, error: emailError }, { data: existingByPhone, error: phoneError }] = await Promise.all([
+            supabase.from(STUDENTS).select("id").eq("unicode", unicode).maybeSingle(),
+            supabase.from(STUDENTS).select("id").eq("email", email).maybeSingle(),
+            supabase.from(STUDENTS).select("id").eq("phone", phone).maybeSingle(),
+        ]);
+
+        if (unicodeError || emailError || phoneError) {
+            const errorMessage = unicodeError?.message || emailError?.message || phoneError?.message;
+            return res.status(500).json({ message: `Error checking student uniqueness: ${errorMessage}` });
         }
-        if (student) {
-            return res.status(409).json({ message: "Already a student with the unicode exists" });
+
+        if (existingByUnicode) {
+            return res.status(409).json({ message: "A student with this unicode already exists" });
         }
-        const { error: checkerror } = await supabase
+        if (existingByEmail) {
+            return res.status(409).json({ message: "A student with this email already exists" });
+        }
+        if (existingByPhone) {
+            return res.status(409).json({ message: "A student with this phone number already exists" });
+        }
+
+        const { error: insertError } = await supabase
             .from(STUDENTS)
             .insert({
                 name,
@@ -30,9 +41,11 @@ router.post("/student", async (req, res) => {
                 phone,
                 unicode
             });
-        if (checkerror) {
-            return res.status(500).json({ message: `Error in inserting data: ${checkerror.message}` });
+
+        if (insertError) {
+            return res.status(500).json({ message: `Error in inserting data: ${insertError.message}` });
         }
+
         return res.status(200).json({
             success: true,
             message: "Student added in database"

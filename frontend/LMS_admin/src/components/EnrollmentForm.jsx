@@ -5,8 +5,10 @@ const EnrollmentForm = ({
   courses,
   studentId,
   courseId,
+  courseBatch,
   setStudentId,
   setCourseId,
+  setCourseBatch,
   handleSubmit,
 }) => {
   return (
@@ -39,6 +41,28 @@ const EnrollmentForm = ({
               {c.title}
             </option>
           ))}
+        </select>
+      </div>
+      <div className="form-group">
+        <label>📅 Select Batch</label>
+        <select
+          value={courseBatch}
+          onChange={(e) => setCourseBatch(e.target.value)}
+          required
+        >
+          <option value="">-- Select Batch --</option>
+          <option value="January">January</option>
+          <option value="February">February</option>
+          <option value="March">March</option>
+          <option value="April">April</option>
+          <option value="May">May</option>
+          <option value="June">June</option>
+          <option value="July">July</option>
+          <option value="August">August</option>
+          <option value="September">September</option>
+          <option value="October">October</option>
+          <option value="November">November</option>
+          <option value="December">Decembe</option>
         </select>
       </div>
       <button type="submit" className="btn btn-primary btn-lg btn-block fade-in">

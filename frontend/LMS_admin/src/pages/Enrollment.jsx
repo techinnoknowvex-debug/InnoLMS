@@ -7,6 +7,7 @@ const Enrollment = () => {
   const [courses, setCourses] = useState([]);
   const [studentId, setStudentId] = useState('');
   const [courseId, setCourseId] = useState('');
+  const [courseBatch, setCourseBatch] = useState('');
   const token = localStorage.getItem('token');
 
   const loadData = async () => {
@@ -45,8 +46,8 @@ const Enrollment = () => {
 
   const handleEnroll = async (e) => {
     e.preventDefault();
-    if (!studentId || !courseId) {
-      notifyError('Please select both student and course');
+    if (!studentId || !courseId || !courseBatch) {
+      notifyError('Please select student, course, and batch');
       return;
     }
     try {
@@ -54,7 +55,7 @@ const Enrollment = () => {
         method: 'POST',
         headers: {  'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token, },
-        body: JSON.stringify({ student_id: studentId, course_id: courseId }),
+        body: JSON.stringify({ student_id: studentId, course_id: courseId, course_batch: courseBatch }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -63,6 +64,7 @@ const Enrollment = () => {
         notifySuccess(data.message);
         setStudentId('');
         setCourseId('');
+        setCourseBatch('');
       }
     } catch (err) {
       console.error(err);
@@ -88,8 +90,10 @@ const Enrollment = () => {
           courses={courses}
           studentId={studentId}
           courseId={courseId}
+          courseBatch={courseBatch}
           setStudentId={setStudentId}
           setCourseId={setCourseId}
+          setCourseBatch={setCourseBatch}
           handleSubmit={handleEnroll}
         />
       </div>

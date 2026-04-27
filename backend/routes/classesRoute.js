@@ -24,11 +24,11 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 //for flexibility alredy the upload vidio route will the same work
 router.post("/addClasses",admincheck,async (req, res) => {
-    const { course_id, week_number, class_number, title, video_url, thumbnail_url, duration} = req.body;
+    const { course_id, week_number, class_number, title, video_url, thumbnail_url, duration, course_batch} = req.body;
 
     try {
-        if (!course_id || !week_number || !class_number || !title || !video_url) {
-            return res.status(400).json({ message: "course_id, week_number, class_number, title, and video_url are required" });
+        if (!course_id || !week_number || !class_number || !title || !video_url || !course_batch) {
+            return res.status(400).json({ message: "course_id, week_number, class_number, title, video_url, and course_batch are required" });
         }
         const { data: existingClass, error: checkError } = await supabase
             .from(CLASSES)
@@ -36,6 +36,7 @@ router.post("/addClasses",admincheck,async (req, res) => {
             .eq("course_id", course_id)
             .eq("week_number", week_number)
             .eq("class_number", class_number)
+            .eq("course_batch", course_batch)
             .single();
 
         if (existingClass) {
@@ -51,7 +52,8 @@ router.post("/addClasses",admincheck,async (req, res) => {
                 title,
                 video_url,
                 thumbnail_url,
-                duration
+                duration,
+                course_batch
             }]);
 
         if (insertError) {
@@ -89,14 +91,21 @@ router.get("/classes/:course_id/:week_number", async (req, res) => {
 
 router.get("/classes/:course_id", async (req, res) => {
     const { course_id } = req.params;
+    const { course_batch } = req.query;
 
     try {
-        const { data: classes, error: classesError } = await supabase
+        let query = supabase
             .from(CLASSES)
             .select("*")
             .eq("course_id", course_id)
             .order("week_number", { ascending: true })
             .order("class_number", { ascending: true });
+
+        if (course_batch) {
+            query = query.eq("course_batch", course_batch);
+        }
+
+        const { data: classes, error: classesError } = await query;
 
         if (classesError) {
             return res.status(500).json({ message: `Error fetching classes: ${classesError.message}` });
@@ -109,15 +118,14 @@ router.get("/classes/:course_id", async (req, res) => {
     }
 });
 
-
 // Upload video and generate thumbnail
 router.post("/uploadVideo", admincheck, upload.single('video'), async (req, res) => {
-    const { course_id, week_number, class_number, title, duration } = req.body;
+    const { course_id, week_number, class_number, title, duration, course_batch } = req.body;
     const file = req.file;
 
     try {
-        if (!file || !course_id || !week_number || !class_number || !title) {
-            return res.status(400).json({ message: "File, course_id, week_number, class_number, and title are required" });
+        if (!file || !course_id || !week_number || !class_number || !title || !course_batch) {
+            return res.status(400).json({ message: "File, course_id, week_number, class_number, title, and course_batch are required" });
         }
 
         // Check if class already exists
@@ -127,6 +135,7 @@ router.post("/uploadVideo", admincheck, upload.single('video'), async (req, res)
             .eq("course_id", course_id)
             .eq("week_number", week_number)
             .eq("class_number", class_number)
+            .eq("course_batch", course_batch)
             .single();
 
         if (existingClass) {
@@ -186,7 +195,8 @@ router.post("/uploadVideo", admincheck, upload.single('video'), async (req, res)
                 class_number,
                 title,
                 video_url,
-                thumbnail_url,
+                thumbnai,
+                course_batchl_url,
                 duration
             }]);
 
