@@ -87,6 +87,28 @@ router.get("/classes/:course_id/:week_number", async (req, res) => {
     }
 });
 
+router.get("/classes/:course_id", async (req, res) => {
+    const { course_id } = req.params;
+
+    try {
+        const { data: classes, error: classesError } = await supabase
+            .from(CLASSES)
+            .select("*")
+            .eq("course_id", course_id)
+            .order("week_number", { ascending: true })
+            .order("class_number", { ascending: true });
+
+        if (classesError) {
+            return res.status(500).json({ message: `Error fetching classes: ${classesError.message}` });
+        }
+
+        return res.status(200).json({ message: "Classes fetched successfully", classes });
+
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+});
+
 
 // Upload video and generate thumbnail
 router.post("/uploadVideo", admincheck, upload.single('video'), async (req, res) => {

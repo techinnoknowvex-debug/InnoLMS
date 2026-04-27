@@ -17,7 +17,8 @@ import { Config } from '../config';
 const BASE_URL = Config.API_BASE_URL;
 const MyCoursesScreen = ({ navigation }) => {
   
-  const [enrolledCourses, setEnrolledCourses] = useState([]);
+    const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [enrollments, setEnrollments] = useState([]);
   const [courseDetails, setCourseDetails] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -65,6 +66,12 @@ const MyCoursesScreen = ({ navigation }) => {
       const data = await res.json();
       if (res.ok && data.enrolled_course_ids) {
         setEnrolledCourses(data.enrolled_course_ids);
+        setEnrollments(data.enrollments || []);
+        setVerifiedCourses(
+          (data.enrollments || [])
+            .filter((item) => item.is_verified)
+            .map((item) => item.course_id)
+        );
         // Fetch details for each course
         await fetchCourseDetails(data.enrolled_course_ids);
       } else {
@@ -118,30 +125,33 @@ const MyCoursesScreen = ({ navigation }) => {
 
   // Handle course click
   const handleCoursePress = (course) => {
+    const enrollment = enrollments.find((item) => item.course_id === course.id);
+    if (enrollment?.is_verified) {
+      navigation.navigate('CourseDetails', {
+        courseId: course.id,
+        courseTitle: course.title,
+      });
+      return;
+    }
+
     setSelectedCourse(course);
     setVerificationModal(true);
   };
 
   // Handle successful verification
   const handleVerificationSuccess = (enrollment) => {
-    // Add to verified courses
-    setVerifiedCourses([...verifiedCourses, enrollment.course_id]);
-    setVerificationModal(false);
-    
-    // Navigate to course content or show it
-    Alert.alert(
-      'Access Granted',
-      `You can now access ${selectedCourse.title}`,
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            // TODO: Navigate to course content screen
-            // navigation.navigate('CourseContent', { courseId: selectedCourse.id });
-          }
-        }
-      ]
+    setVerifiedCourses((prev) => Array.from(new Set([...prev, selectedCourse?.id])));
+    setEnrollments((prev) =>
+      prev.map((item) =>
+        item.course_id === selectedCourse?.id ? { ...item, is_verified: true } : item
+      )
     );
+    setVerificationModal(false);
+
+    navigation.navigate('CourseDetails', {
+      courseId: selectedCourse?.id,
+      courseTitle: selectedCourse?.title,
+    });
   };
 
   // Empty state

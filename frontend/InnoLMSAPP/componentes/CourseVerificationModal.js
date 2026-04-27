@@ -23,6 +23,14 @@ const CourseVerificationModal = ({
   const [loading, setLoading] = useState(false);
   const [deviceId, setDeviceId] = useState(null);
 
+  React.useEffect(() => {
+    if (course && course.course_id) {
+      setCourseId(String(course.course_id));
+    } else {
+      setCourseId('');
+    }
+  }, [course]);
+
   const COLORS = {
     salmon: '#FFA366',
     black: '#000000',

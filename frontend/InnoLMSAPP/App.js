@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
 import LoginScreen from './Screens/login';
 import DashboardStack from './Screens/DashboardStack';
+import CourseDetailsScreen from './Screens/CourseDetailsScreen';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 const Stack = createNativeStackNavigator();
@@ -59,6 +60,13 @@ function RootNavigator() {
           }}
         />
       )}
+      <Stack.Screen
+        name="CourseDetails"
+        component={CourseDetailsScreen}
+        options={{
+          title: 'Course Details',
+        }}
+      />
       <Stack.Screen
         name="GuestDashboard"
         component={DashboardStack}

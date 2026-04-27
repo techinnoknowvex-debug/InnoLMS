@@ -14,7 +14,7 @@ router.get("/student_enrollments/:student_id", async (req, res) => {
 
         const { data: enrollments, error: enrollError } = await supabase
             .from(ENROLLMENTS)
-            .select("course_id")
+            .select("id, course_id, is_verified, active_device_id, verified_at")
             .eq("student_id", student_id);
 
         if (enrollError) {
@@ -24,7 +24,8 @@ router.get("/student_enrollments/:student_id", async (req, res) => {
         const enrolledCourseIds = enrollments.map(e => e.course_id);
         return res.status(200).json({ 
             message: "Enrolled courses fetched",
-            enrolled_course_ids: enrolledCourseIds 
+            enrolled_course_ids: enrolledCourseIds,
+            enrollments
         });
 
     } catch (err) {
