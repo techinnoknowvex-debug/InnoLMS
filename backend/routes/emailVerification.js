@@ -12,7 +12,7 @@ apiKey.apiKey = process.env.BREVO_API_KEY;
 
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
-// Generate verification token (valid for 30 minutes)
+// Generate verification token (valid for 10 minutes)
 const generateVerificationToken = () => {
   return require('crypto').randomBytes(32).toString('hex');
 };
@@ -51,7 +51,7 @@ const sendEmailViaBrevo = async (toEmail, toName, verificationLink) => {
               </center>
               <br/>
               <p>Or copy this link: <a href="${verificationLink}">${verificationLink}</a></p>
-              <p><strong>This link expires in 30 minutes.</strong></p>
+              <p><strong>This link expires in 10 minutes.</strong></p>
               <p>If you didn't request this verification, please ignore this email.</p>
               <br/>
               <p>Best regards,<br/>INNOKNOWVEX Team</p>
@@ -141,7 +141,7 @@ router.post("/sendEmailVerification", async (req, res) => {
 
 
     const verificationToken = generateVerificationToken();
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString(); // 30 minutes
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 minutes
 
 
     const { data, error } = await supabase
@@ -173,7 +173,7 @@ router.post("/sendEmailVerification", async (req, res) => {
       return res.status(200).json({
         message: "Verification email sent successfully",
         email: student.email,
-        expiresIn: 1800, // 30 minutes in seconds
+        expiresIn: 600, // 10 minutes in seconds
         messageId: emailResult.messageId,
         enrolled: true,
         enrollmentCount: enrollments.length
@@ -185,7 +185,7 @@ router.post("/sendEmailVerification", async (req, res) => {
       return res.status(200).json({
         message: "Verification email sending initiated",
         email: student.email,
-        expiresIn: 1800,
+        expiresIn: 600,
         warning: "Email delivery is being processed",
         enrolled: true,
         enrollmentCount: enrollments.length

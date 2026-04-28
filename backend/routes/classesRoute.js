@@ -2,24 +2,19 @@ const express=require("express");
 const supabase = require("../config/supabase");
 const {CLASSES} = require("../models/tables");
 const admincheck = require("../middleware/admincheck");
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const ffmpeg = require('fluent-ffmpeg');
-const { Readable } = require('stream');
 const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const router=express.Router();
 
-// Configure S3 client
-const s3 = new S3Client({
-    region: process.env.AWS_REGION,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    }
-});
-
 // Configure multer for file upload
 const upload = multer({ storage: multer.memoryStorage() });
+
+// Supabase Storage bucket name
+const VIDEOS_BUCKET = 'course-videos';
+const THUMBNAILS_BUCKET = 'course-thumbnails';
 
 
 //for flexibility alredy the upload vidio route will the same work
@@ -142,49 +137,66 @@ router.post("/uploadVideo", admincheck, upload.single('video'), async (req, res)
             return res.status(409).json({ message: "Class already exists for this course, week, and class number" });
         }
 
-        const bucket = process.env.S3_BUCKET_NAME;
+        // 1️⃣ Upload video to Supabase Storage
+        const videoFileName = `${course_id}/${week_number}/${class_number}/${Date.now()}-${file.originalname}`;
+        const { data: videoData, error: videoUploadError } = await supabase.storage
+            .from(VIDEOS_BUCKET)
+            .upload(videoFileName, file.buffer, {
+                contentType: file.mimetype,
+                upsert: false
+            });
 
-        // 1️⃣ Upload video to S3
-        const videoKey = `videos/${course_id}/${week_number}/${class_number}/${file.originalname}`;
-        await s3.send(new PutObjectCommand({
-            Bucket: bucket,
-            Key: videoKey,
-            Body: file.buffer,
-            ContentType: file.mimetype,
-            ACL: 'public-read'
-        }));
-        const video_url = `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${videoKey}`;
+        if (videoUploadError) {
+            return res.status(500).json({ message: `Error uploading video: ${videoUploadError.message}` });
+        }
+
+        // Get public URL for video
+        const { data: videoPublicData } = supabase.storage
+            .from(VIDEOS_BUCKET)
+            .getPublicUrl(videoFileName);
+        const video_url = videoPublicData.publicUrl;
 
         // 2️⃣ Generate thumbnail using FFmpeg
-        // Note: FFmpeg screenshots saves to /tmp by default, we read it back
-        const thumbnailBuffer = await new Promise((resolve, reject) => {
-            const tmpFile = `/tmp/thumbnail-${Date.now()}.png`;
-            ffmpeg(file.buffer)
-                .on('error', reject)
-                .on('end', () => {
-                    const fs = require('fs');
-                    const buffer = fs.readFileSync(tmpFile);
-                    resolve(buffer);
-                    fs.unlinkSync(tmpFile); // clean up
-                })
-                .screenshots({
-                    count: 1,
-                    folder: '/tmp',
-                    filename: `thumbnail-${Date.now()}.png`,
-                    size: '320x240'
-                });
-        });
+        let thumbnail_url = null;
+        try {
+            const tmpFile = path.join(require('os').tmpdir(), `thumbnail-${Date.now()}.png`);
+            
+            await new Promise((resolve, reject) => {
+                ffmpeg(file.buffer)
+                    .on('error', reject)
+                    .on('end', resolve)
+                    .screenshots({
+                        count: 1,
+                        folder: path.dirname(tmpFile),
+                        filename: path.basename(tmpFile),
+                        size: '320x240'
+                    });
+            });
 
-        // 3️⃣ Upload thumbnail to S3
-        const thumbnailKey = `thumbnails/${course_id}/${week_number}/${class_number}/thumbnail-${Date.now()}.png`;
-        await s3.send(new PutObjectCommand({
-            Bucket: bucket,
-            Key: thumbnailKey,
-            Body: thumbnailBuffer,
-            ContentType: 'image/png',
-            ACL: 'public-read'
-        }));
-        const thumbnail_url = `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${thumbnailKey}`;
+            // 3️⃣ Upload thumbnail to Supabase Storage
+            const thumbnailFileName = `${course_id}/${week_number}/${class_number}/thumbnail-${Date.now()}.png`;
+            const thumbnailBuffer = fs.readFileSync(tmpFile);
+            
+            const { data: thumbnailData, error: thumbnailUploadError } = await supabase.storage
+                .from(THUMBNAILS_BUCKET)
+                .upload(thumbnailFileName, thumbnailBuffer, {
+                    contentType: 'image/png',
+                    upsert: false
+                });
+
+            if (!thumbnailUploadError) {
+                const { data: thumbnailPublicData } = supabase.storage
+                    .from(THUMBNAILS_BUCKET)
+                    .getPublicUrl(thumbnailFileName);
+                thumbnail_url = thumbnailPublicData.publicUrl;
+            }
+
+            // Clean up temp file
+            fs.unlinkSync(tmpFile);
+        } catch (err) {
+            console.log("Thumbnail generation skipped:", err.message);
+            // Continue without thumbnail - it's optional
+        }
 
         // 4️⃣ Insert into Supabase
         const { error: insertError } = await supabase
@@ -195,9 +207,9 @@ router.post("/uploadVideo", admincheck, upload.single('video'), async (req, res)
                 class_number,
                 title,
                 video_url,
-                thumbnai,
-                course_batchl_url,
-                duration
+                thumbnail_url,
+                duration,
+                course_batch
             }]);
 
         if (insertError) {

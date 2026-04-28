@@ -13,6 +13,7 @@ const SideNav = ({ onLogout, sidebarOpen, setSidebarOpen }) => {
     { path: '/courses', label: 'Courses' },
     { path: '/enroll', label: 'Enrollments' },
     { path: '/classes', label: 'Classes' },
+    { path: '/mentor', label: 'Mentor' },
   ];
 
   const navContent = (

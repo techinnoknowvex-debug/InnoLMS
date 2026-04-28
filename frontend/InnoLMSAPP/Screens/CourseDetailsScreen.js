@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  Linking,
   StyleSheet
 } from 'react-native';
 import { Config } from '../config';
@@ -60,18 +59,19 @@ const CourseDetailsScreen = ({ route, navigation }) => {
     }
   };
 
-  const handleWatch = async (lesson) => {
+  const handleWatch = (lesson) => {
     if (!lesson.video_url) {
       Alert.alert('Video not available', 'This lesson does not have a video uploaded yet.');
       return;
     }
 
-    const supported = await Linking.canOpenURL(lesson.video_url);
-    if (supported) {
-      await Linking.openURL(lesson.video_url);
-    } else {
-      Alert.alert('Unable to open video', 'The video URL is not supported on this device.');
-    }
+    navigation.navigate('VideoPlayer', {
+      videoUrl: lesson.video_url,
+      lessonTitle: lesson.title || `Lesson ${lesson.class_number}`,
+      classNumber: lesson.class_number,
+      weekNumber: lesson.week_number,
+      courseTitle: course?.title || courseTitle,
+    });
   };
 
   const grouped = classes.reduce((acc, lesson) => {

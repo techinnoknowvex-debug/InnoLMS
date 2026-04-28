@@ -8,6 +8,7 @@ import Courses from './pages/Courses';
 import Students from './pages/Student';
 import Enrollment from './pages/Enrollment';
 import Classes from './pages/Classes';
+import Mentor from './pages/Mentor';
 import Login from './pages/Login';
 import SideNav from './components/SideNav';
 import logo from './assets/logo.png';
@@ -54,6 +55,7 @@ function App() {
                 <Route path="/students" element={<Students />} />
                 <Route path="/enroll" element={<Enrollment />} />
                 <Route path="/classes" element={<Classes />} />
+                <Route path="/mentor" element={<Mentor />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>

@@ -5,6 +5,7 @@ import { ActivityIndicator, View } from 'react-native';
 import LoginScreen from './Screens/login';
 import DashboardStack from './Screens/DashboardStack';
 import CourseDetailsScreen from './Screens/CourseDetailsScreen';
+import VideoPlayerScreen from './Screens/VideoPlayerScreen';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 const Stack = createNativeStackNavigator();
@@ -65,6 +66,13 @@ function RootNavigator() {
         component={CourseDetailsScreen}
         options={{
           title: 'Course Details',
+        }}
+      />
+      <Stack.Screen
+        name="VideoPlayer"
+        component={VideoPlayerScreen}
+        options={{
+          title: 'Watch Lesson',
         }}
       />
       <Stack.Screen

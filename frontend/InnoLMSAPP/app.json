@@ -18,7 +18,8 @@
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/logo.png"
-      }
+      },
+      "package": "com.anonymous.InnoLMSAPP"
     },
     "web": {
       "favicon": "./assets/favicon.png"
