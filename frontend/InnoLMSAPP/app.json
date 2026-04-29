@@ -11,6 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "plugins": [
+      "expo-av"
+    ],
     "ios": {
       "supportsTablet": true
     },

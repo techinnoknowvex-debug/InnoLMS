@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
-import { Video } from 'expo-av';
+// import { Video } from 'expo-av'; // Temporarily disabled for Expo Go
 
 const VideoPlayerScreen = ({ route }) => {
   const { videoUrl, lessonTitle, classNumber, weekNumber, courseTitle } = route.params || {};
@@ -26,18 +26,11 @@ const VideoPlayerScreen = ({ route }) => {
       </View>
 
       <View style={styles.videoWrapper}>
-        <Video
-          ref={videoRef}
-          style={styles.video}
-          source={videoSource}
-          useNativeControls
-          resizeMode="contain"
-          shouldPlay={true}
-          onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-          onError={(error) => {
-            Alert.alert('Playback error', error?.message || 'Unable to play this video.');
-          }}
-        />
+        {/* Video component disabled for Expo Go compatibility */}
+        <View style={styles.placeholder}>
+          <Text style={styles.placeholderText}>Video playback requires a development build</Text>
+          <Text style={styles.placeholderSubtext}>Install expo-av in a custom development build</Text>
+        </View>
         {!status.isLoaded && (
           <View style={styles.loadingOverlay}>
             <ActivityIndicator size="large" color="#FFA366" />
@@ -90,6 +83,24 @@ const styles = StyleSheet.create({
   video: {
     width: '100%',
     height: '100%',
+  },
+  placeholder: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+  },
+  placeholderText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  placeholderSubtext: {
+    color: '#ccc',
+    fontSize: 14,
+    textAlign: 'center',
   },
   loadingOverlay: {
     position: 'absolute',

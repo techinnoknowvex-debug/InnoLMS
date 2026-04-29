@@ -5,6 +5,7 @@ const Mentor = () => {
   const [mentorUsername, setMentorUsername] = useState('');
   const [mentorPassword, setMentorPassword] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
+  const [token, setToken] = useState('');
   const [courses, setCourses] = useState([]);
   const [courseId, setCourseId] = useState('');
   const [sessionTitle, setSessionTitle] = useState('');
@@ -13,6 +14,7 @@ const Mentor = () => {
   const [sessionTime, setSessionTime] = useState('');
   const [sessionDuration, setSessionDuration] = useState('');
   const [description, setDescription] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const loadCourses = async () => {
@@ -32,17 +34,40 @@ const Mentor = () => {
     loadCourses();
   }, []);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!mentorUsername.trim() || !mentorPassword.trim()) {
       notifyError('Username and password are required');
       return;
     }
-    setLoggedIn(true);
-    notifySuccess('Mentor login successful');
+
+    setLoading(true);
+    try {
+      const res = await fetch('http://localhost:5000/LMS/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: mentorUsername, password: mentorPassword }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        notifyError(data.message || 'Login failed');
+        setLoading(false);
+        return;
+      }
+
+      setToken(data.token);
+      setLoggedIn(true);
+      notifySuccess('Mentor login successful');
+    } catch (err) {
+      console.error(err);
+      notifyError('Login error: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCreateSession = (e) => {
+  const handleCreateSession = async (e) => {
     e.preventDefault();
 
     if (!courseId || !sessionTitle.trim() || !teachmintLink.trim() || !sessionDate || !sessionTime || !sessionDuration.trim()) {
@@ -50,30 +75,50 @@ const Mentor = () => {
       return;
     }
 
-    const sessionData = {
-      mentorUsername,
-      courseId,
-      sessionTitle,
-      teachmintLink,
-      sessionDate,
-      sessionTime,
-      sessionDuration,
-      description,
-    };
+    setLoading(true);
+    try {
+      const res = await fetch('http://localhost:5000/LMS/mentorSession', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          courseId,
+          sessionTitle,
+          teachmintLink,
+          sessionDate,
+          sessionTime,
+          sessionDuration,
+          description,
+        }),
+      });
 
-    console.log('Mentor session created:', sessionData);
-    notifySuccess('Session created successfully');
-    setCourseId('');
-    setSessionTitle('');
-    setTeachmintLink('');
-    setSessionDate('');
-    setSessionTime('');
-    setSessionDuration('');
-    setDescription('');
+      const data = await res.json();
+      if (!res.ok) {
+        notifyError(data.message || 'Failed to create session');
+        return;
+      }
+
+      notifySuccess('Session created and stored successfully');
+      setCourseId('');
+      setSessionTitle('');
+      setTeachmintLink('');
+      setSessionDate('');
+      setSessionTime('');
+      setSessionDuration('');
+      setDescription('');
+    } catch (err) {
+      console.error(err);
+      notifyError('Error creating session: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = () => {
     setLoggedIn(false);
+    setToken('');
     setMentorUsername('');
     setMentorPassword('');
   };
@@ -111,8 +156,8 @@ const Mentor = () => {
                 required
               />
             </div>
-            <button type="submit" className="btn btn-primary btn-lg btn-block">
-              Login as Mentor
+            <button type="submit" className="btn btn-primary btn-lg btn-block" disabled={loading}>
+              {loading ? 'Logging in...' : 'Login as Mentor'}
             </button>
           </form>
         </div>
@@ -202,8 +247,8 @@ const Mentor = () => {
                 rows="4"
               />
             </div>
-            <button type="submit" className="btn btn-primary btn-lg btn-block">
-              Create Session
+            <button type="submit" className="btn btn-primary btn-lg btn-block" disabled={loading}>
+              {loading ? 'Creating Session...' : 'Create Session'}
             </button>
           </form>
         </div>

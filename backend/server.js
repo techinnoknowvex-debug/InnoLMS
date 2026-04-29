@@ -19,6 +19,7 @@ const otp=require("./routes/otp")
 const devices=require("./routes/devices")
 const courseVerification=require("./routes/courseVerification")
 const emailVerification=require("./routes/emailVerification")
+const mentorSessions=require("./routes/mentorSessions")
 
 //supabase checking
 supabase.from('students').select('count').limit(1)
@@ -51,6 +52,7 @@ app.use("/LMS",otp)
 app.use("/LMS",devices)
 app.use("/LMS",courseVerification)
 app.use("/LMS",emailVerification)
+app.use("/LMS",mentorSessions)
 
 
 app.listen(process.env.PORT,()=>{

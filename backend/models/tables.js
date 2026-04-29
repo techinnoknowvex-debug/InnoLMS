@@ -8,5 +8,6 @@ module.exports = {
     STUDENT_ENROLL:'student_enrollments',
     OTP_REQUESTS: 'otp_requests',
     DEVICES: 'devices',
-    EMAIL_VERIFICATIONS: 'email_verifications'
+    EMAIL_VERIFICATIONS: 'email_verifications',
+    MENTOR_SESSIONS: 'mentor_sessions'
 };

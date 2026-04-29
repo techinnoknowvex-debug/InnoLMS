@@ -8,7 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import HomeScreen from './HomeScreen';
 import MyCoursesScreen from './MyCoursesScreen';
 import ExploreScreen from './ExploreScreen';
-import CertificatesScreen from './CertificatesScreen';
+import ScheduleScreen from './ScheduleScreen';
 import ProfileScreen from './ProfileScreen';
 
 const Tab = createBottomTabNavigator();
@@ -48,8 +48,8 @@ const DashboardStack = () => {
             iconName = 'book-open';
           } else if (route.name === 'Explore') {
             iconName = 'compass';
-          } else if (route.name === 'Certificates') {
-            iconName = 'certificate';
+          } else if (route.name === 'Schedule') {
+            iconName = 'calendar-check';
           } else if (route.name === 'Profile') {
             iconName = 'account';
           }
@@ -115,9 +115,9 @@ const DashboardStack = () => {
 
       {!isGuest && (
         <Tab.Screen
-          name="Certificates"
-          component={CertificatesScreen}
-          options={{ title: 'Certificates' }}
+          name="Schedule"
+          component={ScheduleScreen}
+          options={{ title: 'Schedule' }}
         />
       )}
       
